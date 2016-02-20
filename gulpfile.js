@@ -12,7 +12,8 @@ var gulp = require('gulp'),
     filter = require('gulp-filter'),
     order = require('gulp-order'),
     mainBowerFiles = require('main-bower-files'),
-    inject = require('gulp-inject');
+    inject = require('gulp-inject'),
+    connect = require('gulp-connect');;
 
 var config =
   {
@@ -36,7 +37,7 @@ var config =
       return this.path('html')
     },
     filePath: function (asset) {
-      return this[asset + 'Path']() + this[asset + 'File']
+      return this[asset + 'Dir'] + this[asset + 'File']
     },
     cssFilePath: function () {
       return this.filePath('css')
@@ -49,7 +50,7 @@ var config =
     }
   }
 
-gulp.task('default', ['stylesheets', 'javascripts', 'html'], function ()
+gulp.task('default', ['connect', 'stylesheets', 'javascripts', 'html'], function ()
 {
   return;
 })
@@ -109,8 +110,15 @@ gulp.task('bower:css', function () {
 
 gulp.task('html', function () {
   var target = gulp.src('src/html/index.html');
-  var sources = gulp.src([config.jsFilePath(), config.cssFilePath()], {read: false});
+  var sources = gulp.src([config.jsFilePath(), config.cssFilePath()], {cwd: config.root, read: false});
  
   return target.pipe(inject(sources))
     .pipe(gulp.dest(config.htmlPath()));
+});
+
+gulp.task('connect', function() {
+  connect.server({
+    root: 'public'
+    // livereload: true
+  });
 });
