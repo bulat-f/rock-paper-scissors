@@ -8,9 +8,12 @@ var gulp = require('gulp'),
     coffee  = require('gulp-coffee'),
     concat  = require('gulp-concat'),
     gutil   = require('gulp-util'),
-    rename = require('gulp-rename');
+    rename = require('gulp-rename'),
+    filter = require('gulp-filter'),
+    order = require('gulp-order'),
+    mainBowerFiles = require('main-bower-files');
 
-gulp.task('default', ['stylesheets', 'coffee'], function ()
+gulp.task('default', ['stylesheets', 'coffee', 'bower:js', 'bower:css'], function ()
 {
   return;
 })
@@ -34,4 +37,22 @@ gulp.task('coffee', function () {
     .pipe(uglify())
     .pipe(gulp.dest('public/js'))
     .on('error', gutil.log)
+})
+
+gulp.task('bower:js', function () {
+  var vendors = mainBowerFiles();
+  return gulp.src(vendors)
+    .pipe(filter('**.js'))
+    .pipe(order(vendors))
+    .pipe(concat('vendor.js'))
+    .pipe(gulp.dest('public/js'))
+})
+
+gulp.task('bower:css', function () {
+  var vendors = mainBowerFiles();
+  return gulp.src(vendors)
+    .pipe(filter('**.css'))
+    .pipe(order(vendors))
+    .pipe(concat('vendor.css'))
+    .pipe(gulp.dest('public/css'))
 })
