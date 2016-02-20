@@ -13,7 +13,8 @@ var gulp = require('gulp'),
     order = require('gulp-order'),
     mainBowerFiles = require('main-bower-files'),
     inject = require('gulp-inject'),
-    connect = require('gulp-connect');;
+    connect = require('gulp-connect'),
+    haml = require('gulp-haml');
 
 var config =
   {
@@ -50,7 +51,29 @@ var config =
     }
   }
 
-gulp.task('default', ['connect', 'stylesheets', 'javascripts', 'html'], function ()
+var src = {
+  root: 'src/',
+  sassDir: 'stylesheets/',
+  coffeeDir: 'coffee/',
+  hamlDir: 'haml/',
+  sassFile: '**/*.scss',
+  coffeeFile: '**/*.coffee',
+  hamlFile: 'index.haml',
+  path: function (asset) {
+    return this.root + this[asset + 'Dir'] + this[asset + 'File']
+  },
+  sass: function () {
+    return this.path('sass')
+  },
+  coffee: function () {
+    return this.path('coffee')
+  },
+  index: function () {
+    return this.path('haml')
+  }
+}
+
+gulp.task('default', ['connect', 'watch', 'stylesheets', 'javascripts', 'haml'], function ()
 {
   return;
 })
@@ -108,11 +131,12 @@ gulp.task('bower:css', function () {
     .pipe(gulp.dest(config.cssPath()))
 })
 
-gulp.task('html', function () {
-  var target = gulp.src('src/html/index.html');
+gulp.task('haml', function () {
+  var target = gulp.src(src.index());
   var sources = gulp.src([config.jsFilePath(), config.cssFilePath()], {cwd: config.root, read: false});
  
   return target.pipe(inject(sources))
+    .pipe(haml())
     .pipe(gulp.dest(config.htmlPath()));
 });
 
@@ -122,3 +146,9 @@ gulp.task('connect', function() {
     // livereload: true
   });
 });
+
+gulp.task('watch', function () {
+  gulp.watch(src.index(), ['haml']);
+  gulp.watch(src.sass(), ['stylesheets']);
+  gulp.watch(src.coffee(), ['javascripts']);
+})
