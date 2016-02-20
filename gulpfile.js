@@ -12,7 +12,7 @@ gulp.task('default', ['stylesheets'], function ()
 })
 
 gulp.task('stylesheets', function () {
-  return gulp.src('src/stylesheets/**/*.scss')
+  return gulp.src('src/stylesheets/application.scss')
     .pipe(sass())
     .pipe(autoprefixer({
         browsers: ['last 10 versions'],
