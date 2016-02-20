@@ -48,13 +48,14 @@ var config =
     },
     htmlFilePath: function () {
       return this.filePath('html')
-    }
+    },
+    paths: ['public/css/app.min.css', 'public/js/app.min.js', 'public/index.html']
   }
 
 var src = {
   root: 'src/',
   sassDir: 'stylesheets/',
-  coffeeDir: 'coffee/',
+  coffeeDir: 'javascripts/',
   hamlDir: 'haml/',
   sassFile: '**/*.scss',
   coffeeFile: '**/*.coffee',
@@ -73,10 +74,7 @@ var src = {
   }
 }
 
-gulp.task('default', ['connect', 'watch', 'stylesheets', 'javascripts', 'haml'], function ()
-{
-  return;
-})
+gulp.task('default', ['connect', 'watch'])
 
 gulp.task('stylesheets', ['sass', 'bower:css'], function () {
   return gulp.src(config.cssPath() + '*.css')
@@ -84,6 +82,7 @@ gulp.task('stylesheets', ['sass', 'bower:css'], function () {
     .pipe(rename({suffix: '.min'}))
     .pipe(minifycss())
     .pipe(gulp.dest(config.cssPath()))
+    .pipe(connect.reload())
 })
 
 gulp.task('sass', function () {
@@ -103,6 +102,7 @@ gulp.task('javascripts', ['coffee', 'bower:js'], function () {
     .pipe(rename({suffix: '.min'}))
     .pipe(uglify())
     .pipe(gulp.dest(config.jsPath()))
+    .pipe(connect.reload())
 })
 
 gulp.task('coffee', function () {
@@ -137,13 +137,14 @@ gulp.task('haml', function () {
  
   return target.pipe(inject(sources))
     .pipe(haml())
-    .pipe(gulp.dest(config.htmlPath()));
+    .pipe(gulp.dest(config.htmlPath()))
+    .pipe(connect.reload());
 });
 
 gulp.task('connect', function() {
   connect.server({
-    root: 'public'
-    // livereload: true
+    root: 'public',
+    livereload: true
   });
 });
 

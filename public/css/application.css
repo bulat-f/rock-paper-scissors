@@ -1,9 +1,15 @@
-body {
-  background: #eee; }
+.container {
+  color: red; }
+
+.hello {
+  padding-top: 100px; }
 
 .awesome-class {
   -webkit-border-radius: 8px;
   border-radius: 8px; }
+
+body {
+  background: #fff; }
 
 .other-class {
   position: relative;
