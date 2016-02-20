@@ -1,0 +1,21 @@
+{
+  "name": "rock-paper-scissors",
+  "description": "Zero-sum hand game",
+  "main": "index.js",
+  "authors": [
+    "Bulat F"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/fatbulat/rock-paper-scissors",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.0"
+  }
+}
