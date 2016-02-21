@@ -22,7 +22,7 @@ var config =
   {
     root: 'public/',
     cssDir: 'css/',
-    fontsDir: 'css/fonts/',
+    fontsDir: 'fonts/',
     jsDir: 'js/',
     htmlDir: '',
     cssFile: '**/*.css',
@@ -44,7 +44,7 @@ var config =
       return this.path('html')
     },
     libPath: function (asset) {
-      return this[asset + 'Path']() + '/lib'
+      return this[asset + 'Path']()
     },
     cssLibPath: function () {
       return this.libPath('css')
@@ -149,7 +149,6 @@ gulp.task('bower:fonts', function () {
   var vendors = mainBowerFiles();
   return gulp.src(vendors)
     .pipe(filter('**/*.{eot,svg,ttf,woff,woff2}'))
-    .pipe(order(vendors))
     .pipe(gulp.dest(config.fontsLibPath()))
 })
 
