@@ -22,6 +22,7 @@ var config =
   {
     root: 'public/',
     cssDir: 'css/',
+    fontsDir: 'css/fonts/',
     jsDir: 'js/',
     htmlDir: '',
     cssFile: '**/*.css',
@@ -32,6 +33,9 @@ var config =
     },
     cssPath: function () {
       return this.path('css')
+    },
+    fontsPath: function () {
+      return this.path('fonts')
     },
     jsPath: function () {
       return this.path('js')
@@ -44,6 +48,9 @@ var config =
     },
     cssLibPath: function () {
       return this.libPath('css')
+    },
+    fontsLibPath: function () {
+      return this.path('fonts')
     },
     jsLibPath: function () {
       return this.libPath('js')
@@ -87,7 +94,7 @@ var src = {
 
 gulp.task('default', ['connect', 'watch', 'stylesheets', 'javascripts', 'haml'])
 
-gulp.task('stylesheets', ['sass', 'bower:css', 'bower:less'])
+gulp.task('stylesheets', ['sass', 'bower:css', 'bower:less', 'bower:fonts'])
 
 gulp.task('javascripts', ['coffee', 'bower:js'])
 
@@ -136,6 +143,14 @@ gulp.task('bower:less', function () {
       paths: [ path.join(__dirname, 'less', 'includes') ]
     }))
     .pipe(gulp.dest(config.cssLibPath()))
+})
+
+gulp.task('bower:fonts', function () {
+  var vendors = mainBowerFiles();
+  return gulp.src(vendors)
+    .pipe(filter('**/*.{eot,svg,ttf,woff,woff2}'))
+    .pipe(order(vendors))
+    .pipe(gulp.dest(config.fontsLibPath()))
 })
 
 gulp.task('haml', function () {
