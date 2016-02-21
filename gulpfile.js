@@ -14,7 +14,9 @@ var gulp = require('gulp'),
     mainBowerFiles = require('main-bower-files'),
     inject = require('gulp-inject'),
     connect = require('gulp-connect'),
-    haml = require('gulp-haml');
+    haml = require('gulp-haml'),
+    less = require('gulp-less'),
+    path = require('path');
 
 var config =
   {
@@ -22,8 +24,8 @@ var config =
     cssDir: 'css/',
     jsDir: 'js/',
     htmlDir: '',
-    cssFile: 'app.min.css',
-    jsFile: 'app.min.js',
+    cssFile: '**/*.css',
+    jsFile: '**/*.js',
     htmlFile: 'index.html',
     path: function (asset) {
       return this.root + this[asset + 'Dir']
@@ -37,6 +39,15 @@ var config =
     htmlPath: function () {
       return this.path('html')
     },
+    libPath: function (asset) {
+      return this[asset + 'Path']() + '/lib'
+    },
+    cssLibPath: function () {
+      return this.libPath('css')
+    },
+    jsLibPath: function () {
+      return this.libPath('js')
+    },
     filePath: function (asset) {
       return this[asset + 'Dir'] + this[asset + 'File']
     },
@@ -49,7 +60,7 @@ var config =
     htmlFilePath: function () {
       return this.filePath('html')
     },
-    paths: ['public/css/app.min.css', 'public/js/app.min.js', 'public/index.html']
+    paths: ['public/css/**/*.css', 'public/js/app.min.js', 'public/index.html']
   }
 
 var src = {
@@ -74,16 +85,11 @@ var src = {
   }
 }
 
-gulp.task('default', ['connect', 'watch'])
+gulp.task('default', ['connect', 'watch', 'stylesheets', 'javascripts', 'haml'])
 
-gulp.task('stylesheets', ['sass', 'bower:css'], function () {
-  return gulp.src(config.cssPath() + '*.css')
-    .pipe(concat('app.css'))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(minifycss())
-    .pipe(gulp.dest(config.cssPath()))
-    .pipe(connect.reload())
-})
+gulp.task('stylesheets', ['sass', 'bower:css', 'bower:less'])
+
+gulp.task('javascripts', ['coffee', 'bower:js'])
 
 gulp.task('sass', function () {
   return gulp.src('src/stylesheets/application.scss')
@@ -93,15 +99,6 @@ gulp.task('sass', function () {
         cascade: false
     }))
     .pipe(gulp.dest(config.cssPath()))
-})
-
-
-gulp.task('javascripts', ['coffee', 'bower:js'], function () {
-  return gulp.src(config.jsPath() + '*.js')
-    .pipe(concat('app.js'))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(uglify())
-    .pipe(gulp.dest(config.jsPath()))
     .pipe(connect.reload())
 })
 
@@ -111,24 +108,34 @@ gulp.task('coffee', function () {
     .pipe(concat('application.js'))
     .pipe(gulp.dest(config.jsPath()))
     .on('error', gutil.log)
+    .pipe(connect.reload())
 })
 
 gulp.task('bower:js', function () {
   var vendors = mainBowerFiles();
   return gulp.src(vendors)
-    .pipe(filter('**.js'))
+    .pipe(filter('**/*.js'))
     .pipe(order(vendors))
-    .pipe(concat('vendor.js'))
-    .pipe(gulp.dest(config.jsPath()))
+    .pipe(gulp.dest(config.jsLibPath()))
 })
 
 gulp.task('bower:css', function () {
   var vendors = mainBowerFiles();
   return gulp.src(vendors)
-    .pipe(filter('**.css'))
+    .pipe(filter('**/*.css'))
     .pipe(order(vendors))
-    .pipe(concat('vendor.css'))
-    .pipe(gulp.dest(config.cssPath()))
+    .pipe(gulp.dest(config.cssLibPath()))
+})
+
+gulp.task('bower:less', function () {
+  var vendors = mainBowerFiles();
+  return gulp.src(vendors)
+    .pipe(filter('**/*.less'))
+    .pipe(order(vendors))
+    .pipe(less({
+      paths: [ path.join(__dirname, 'less', 'includes') ]
+    }))
+    .pipe(gulp.dest(config.cssLibPath()))
 })
 
 gulp.task('haml', function () {
@@ -150,6 +157,6 @@ gulp.task('connect', function() {
 
 gulp.task('watch', function () {
   gulp.watch(src.index(), ['haml']);
-  gulp.watch(src.sass(), ['stylesheets']);
-  gulp.watch(src.coffee(), ['javascripts']);
+  gulp.watch(src.sass(), ['sass']);
+  gulp.watch(src.coffee(), ['coffee']);
 })
